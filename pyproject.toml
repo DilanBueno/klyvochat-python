@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "klyvochat"
+version = "0.1.0"
+description = "Desktop communication app with P2P chat and WebRTC voice calls"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Klyvochat Team"}
+]
+keywords = ["p2p", "webrtc", "chat", "voice", "python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "PySide6>=6.5",
+    "aiortc>=1.6",
+    "websockets>=12.0",
+    "SQLAlchemy>=2.0",
+    "cryptography>=41.0",
+    "sounddevice>=0.4",
+    "soundfile>=0.12",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "python-jose[cryptography]>=3.3.0",
+    "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.21",
+    "ruff>=0.1",
+    "black>=23.12",
+]
+
+[project.scripts]
+klyvochat = "run:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["client*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
