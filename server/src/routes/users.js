@@ -1,48 +1,46 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../config.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { getPool } from '../database/db.js';
 
 const router = express.Router();
 
-const users = new Map();
-
-function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  
-  const token = authHeader.slice(7);
+router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, config.jwtSecret);
-    req.user = decoded;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-}
+    const pool = getPool();
+    const [rows] = await pool.execute(
+      'SELECT id, username, email FROM users WHERE id = ?',
+      [req.user.userId]
+    );
 
-router.get('/me', authenticate, (req, res) => {
-  const user = users.get(req.user.email);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('Get me error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  res.json({ id: user.id, username: user.username, email: user.email });
 });
 
-router.get('/search', authenticate, (req, res) => {
-  const { q } = req.query;
-  if (!q) {
-    return res.status(400).json({ error: 'Query required' });
-  }
-  
-  const results = [];
-  for (const user of users.values()) {
-    if (user.email.includes(q) || user.username.toLowerCase().includes(q.toLowerCase())) {
-      results.push({ id: user.id, username: user.username, email: user.email });
+router.get('/search', authMiddleware, async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) {
+      return res.status(400).json({ error: 'Query required' });
     }
+
+    const pool = getPool();
+    const [rows] = await pool.execute(
+      'SELECT id, username, email FROM users WHERE email LIKE ? OR username LIKE ? LIMIT 50',
+      [`%${q}%`, `%${q}%`]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  res.json(results);
 });
 
 export default router;

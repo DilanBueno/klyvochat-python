@@ -1,0 +1,232 @@
+from PySide6.QtGui import QFont, QColor
+from PySide6.QtWidgets import QApplication
+
+
+class ThemeManager:
+    _instance = None
+
+    COLORS = {
+        "bg_primary": "#1b2838",
+        "bg_secondary": "#2a475e",
+        "bg_tertiary": "#3d6a8a",
+        "accent": "#66c0f4",
+        "accent_hover": "#89c4eb",
+        "accent_pressed": "#4fa8d8",
+        "text_primary": "#c7d5e0",
+        "text_secondary": "#8b98a5",
+        "text_disabled": "#5a6570",
+        "success": "#4caf50",
+        "error": "#f44336",
+        "warning": "#ffc107",
+        "border": "#3a4a5a",
+        "input_bg": "#2a3f52",
+        "input_focus": "#3a5068",
+    }
+
+    FONTS = {
+        "family": "Segoe UI, Noto Sans, Sans-Serif",
+    }
+
+    FONT_SIZES = {
+        "small": 10,
+        "body": 12,
+        "medium": 13,
+        "large": 14,
+        "title": 16,
+        "heading": 18,
+    }
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, "_initialized"):
+            self._initialized = True
+            self._current_theme = "dark"
+
+    def get_color(self, name: str) -> str:
+        return self.COLORS.get(name, "#000000")
+
+    def get_font(self, size: str = "body") -> QFont:
+        font = QFont()
+        font.setFamily(self.FONTS["family"])
+        font.setPointSize(self.FONT_SIZES.get(size, 12))
+        return font
+
+    def get_font_size(self, size: str) -> int:
+        return self.FONT_SIZES.get(size, 12)
+
+    def get_qcolor(self, name: str) -> QColor:
+        return QColor(self.get_color(name))
+
+    def get_stylesheet(self) -> str:
+        return f"""
+        QWidget {{
+            background-color: {self.get_color("bg_primary")};
+            color: {self.get_color("text_primary")};
+            font-family: {self.FONTS["family"]};
+            font-size: {self.get_font_size("body")}px;
+        }}
+
+        QPushButton {{
+            background-color: {self.get_color("accent")};
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: {self.get_font_size("body")}px;
+            font-weight: bold;
+            min-height: 24px;
+        }}
+
+        QPushButton:hover {{
+            background-color: {self.get_color("accent_hover")};
+        }}
+
+        QPushButton:pressed {{
+            background-color: {self.get_color("accent_pressed")};
+        }}
+
+        QPushButton:disabled {{
+            background-color: {self.get_color("text_disabled")};
+            color: {self.get_color("bg_secondary")};
+        }}
+
+        QPushButton#ghost {{
+            background-color: transparent;
+            color: {self.get_color("accent")};
+            border: 1px solid {self.get_color("accent")};
+        }}
+
+        QPushButton#ghost:hover {{
+            background-color: {self.get_color("accent")}20;
+        }}
+
+        QPushButton#danger {{
+            background-color: {self.get_color("error")};
+            color: #ffffff;
+        }}
+
+        QPushButton#danger:hover {{
+            background-color: #e53935;
+        }}
+
+        QLineEdit {{
+            background-color: {self.get_color("input_bg")};
+            color: {self.get_color("text_primary")};
+            border: 1px solid {self.get_color("border")};
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: {self.get_font_size("body")}px;
+            selection-background-color: {self.get_color("accent")};
+        }}
+
+        QLineEdit:focus {{
+            border-color: {self.get_color("accent")};
+            background-color: {self.get_color("input_focus")};
+        }}
+
+        QLineEdit:disabled {{
+            background-color: {self.get_color("bg_secondary")};
+            color: {self.get_color("text_disabled")};
+        }}
+
+        QScrollArea {{
+            background-color: transparent;
+            border: none;
+        }}
+
+        QScrollArea > QWidget > QWidget {{
+            background-color: transparent;
+        }}
+
+        QLabel {{
+            background-color: transparent;
+            color: {self.get_color("text_primary")};
+            font-size: {self.get_font_size("body")}px;
+        }}
+
+        QFrame {{
+            background-color: transparent;
+        }}
+
+        QFrame#card {{
+            background-color: {self.get_color("bg_secondary")};
+            border-radius: 8px;
+            border: 1px solid {self.get_color("border")};
+        }}
+
+        QScrollBar:vertical {{
+            background-color: transparent;
+            width: 8px;
+            margin: 0px;
+        }}
+
+        QScrollBar::handle:vertical {{
+            background-color: {self.get_color("text_disabled")};
+            border-radius: 4px;
+            min-height: 20px;
+        }}
+
+        QScrollBar::handle:vertical:hover {{
+            background-color: {self.get_color("text_secondary")};
+        }}
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            height: 0px;
+        }}
+
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
+            height: 0px;
+        }}
+
+        QScrollBar:horizontal {{
+            background-color: transparent;
+            height: 8px;
+            margin: 0px;
+        }}
+
+        QScrollBar::handle:horizontal {{
+            background-color: {self.get_color("text_disabled")};
+            border-radius: 4px;
+            min-width: 20px;
+        }}
+
+        QScrollBar::handle:horizontal:hover {{
+            background-color: {self.get_color("text_secondary")};
+        }}
+
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
+            width: 0px;
+        }}
+
+        QMenu {{
+            background-color: {self.get_color("bg_secondary")};
+            border: 1px solid {self.get_color("border")};
+            border-radius: 4px;
+            padding: 4px;
+        }}
+
+        QMenu::item {{
+            padding: 6px 24px 6px 12px;
+            border-radius: 2px;
+        }}
+
+        QMenu::item:selected {{
+            background-color: {self.get_color("accent")};
+        }}
+
+        QMenu::separator {{
+            height: 1px;
+            background-color: {self.get_color("border")};
+            margin: 4px 0px;
+        }}
+        """
+
+    def apply_theme(self, widget):
+        widget.setStyleSheet(self.get_stylesheet())
+
+
+theme = ThemeManager()

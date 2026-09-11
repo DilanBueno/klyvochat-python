@@ -1,47 +1,38 @@
 import sys
 import signal
-import logging
-from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
+from qasync import QEventLoop
 
 from config import settings
 
 
-def setup_logging():
-    log_dir = Path("data")
-    log_dir.mkdir(exist_ok=True)
-    
-    logging.basicConfig(
-        level=getattr(logging, settings.LOG_LEVEL),
-        format="[%(asctime)s] %(levelname)s %(name)s: %(message)s",
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(log_dir / "klyvochat.log"),
-        ],
-    )
-
-
 def main():
-    setup_logging()
-    logger = logging.getLogger(__name__)
+    from client.utils.logger import get_logger
+    logger = get_logger(__name__)
     logger.info("Starting Klyvochat...")
-    
+
     app = QApplication(sys.argv)
     app.setApplicationName("Klyvochat")
-    
-    from client.ui.windows.login_window import LoginWindow
-    window = LoginWindow()
-    window.show()
-    
+
+    loop = QEventLoop(app)
+    sys.attach_loop(loop)
+
+    from client.main import AppController
+    controller = AppController()
+    controller.start()
+
     def cleanup(signum, frame):
         logger.info("Shutting down...")
         app.quit()
-    
+
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
-    
-    sys.exit(app.exec())
+
+    with loop:
+        loop.run_forever()
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":

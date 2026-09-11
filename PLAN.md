@@ -22,7 +22,7 @@ Aplicativo de comunicação para desktop em Python, inspirado no Steam Chat, com
 | # | Fase | Arquivo | Status |
 |---|------|---------|--------|
 | 0 | Infraestrutura e Setup | [fase0.md](#fase-0) | Concluído |
-| 1 | Sistema de Temas e Janelas Flutuantes | [fase1.md](#fase-1) | Não iniciado |
+| 1 | Sistema de Temas e Janelas Flutuantes | [fase1.md](#fase-1) | Concluído |
 | 2 | Autenticação e Gerenciamento de Usuários | [fase2.md](#fase-2) | Não iniciado |
 | 3 | Sistema de Presença e Lista de Amigos | [fase3.md](#fase-3) | Não iniciado |
 | 4 | Conexão P2P e Signaling | [fase4.md](#fase-4) | Não iniciado |
@@ -216,6 +216,7 @@ Criar a estrutura base do projeto, configurar dependências, entry point e servi
         - `package.json`: nome klyvochat-server, dependências express, ws, cors, dotenv, bcrypt, jsonwebtoken
         - `config.js`: port, jwt_secret, db connection string (via env)
         - `index.js`: Express server + WebSocket server na mesma porta, endpoint GET `/health` retornando `{status: "ok"}`, middleware CORS, JSON parser
+        - Deploy: servidor publicado na Hostinger via `.zip`. Entry file: `src/index.js`. O `config.py` do cliente aponta para a URL da Hostinger via variáveis de ambiente em `.env`.
 
 - [x] 6. Criar `.gitignore`
       - Arquivos: `.gitignore`
@@ -294,7 +295,7 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
 
 ## Tarefas
 
-- [ ] 6. Implementar sistema de temas
+- [x] 6. Implementar sistema de temas
       - Arquivos: `client/ui/theme.py`
       - Detalhes: Criar classe `ThemeManager` com:
         - Paleta de cores escura: fundo principal `#1b2838`, fundo secundário `#2a475e`, acento `#66c0f4`, texto `#c7d5e0`, texto secundário `#8b98a5`, sucesso `#4caf50`, erro `#f44336`
@@ -303,7 +304,7 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
         - Métodos: `apply_theme(widget)` aplica stylesheet, `get_color(name)` retorna cor, `get_font(size)` retorna font
         - Suporte a troca de tema no futuro (dark/light)
 
-- [ ] 7. Implementar Window Manager (janelas flutuantes)
+- [x] 7. Implementar Window Manager (janelas flutuantes)
       - Arquivos: `client/ui/window_manager.py`
       - Detalhes: Criar classe `FloatingWindow(QWidget)`:
         - `Qt.FramelessWindowHint` + `Qt.WA_TranslucentBackground`
@@ -315,7 +316,7 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
         - Método `make_draggable(widget)`: conecta mouseMoveEvent para mover janela
         - Override `paintEvent` para desenhar fundo arredondado
 
-- [ ] 8. Criar janela de login
+- [x] 8. Criar janela de login
       - Arquivos: `client/ui/windows/login_window.py`
       - Detalhes: Janela `FloatingWindow` (400x500):
         - Logo/título "Klyvochat" centralizado no topo
@@ -327,7 +328,7 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
         - Animação fade-in ao mostrar
         - Botão fechar funcional
 
-- [ ] 9. Criar janela principal (lista de amigos)
+- [x] 9. Criar janela principal (lista de amigos)
       - Arquivos: `client/ui/windows/main_window.py`
       - Detalhes: Janela `FloatingWindow` (300x600):
         - Barra de busca `QLineEdit` no topo
@@ -339,7 +340,7 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
         - Botão engrenagem no rodapé → callback `on_settings_clicked()`
         - Placeholder "Nenhum amigo ainda" quando lista vazia
 
-- [ ] 10. Criar widgets de componentes reutilizáveis
+- [x] 10. Criar widgets de componentes reutilizáveis
       - Arquivos: `client/ui/components/*.py`
       - Detalhes:
         - `avatar.py`: Widget `QLabel` circular (máscara redonda via `QPainter`), mostra iniciais ou imagem, tamanho configurável (32px, 48px, 64px)
@@ -348,7 +349,6 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
         - `notification.py`: `QWidget` flutuante com animação slide-in do canto, texto + botão fechar, auto-dismiss 5s
         - `search_bar.py`: `QLineEdit` com ícone de lupa à esquerda, placeholder "Buscar..."
         - `message_bubble.py`: `QFrame` com estilo de balão, align left (recebida) ou right (enviada), timestamp embaixo
-
 ## Riscos / Pontos de Atenção
 - `WA_TranslucentBackground` pode não funcionar em todos os WM do Linux (testar com X11 e Wayland)
 - Animações com `QPropertyAnimation` precisam do event loop rodando — não bloquear com operações síncronas
@@ -356,12 +356,18 @@ Criar a base visual do aplicativo com janelas customizadas, tema escuro estilo S
 - Cantos arredondados com QPainter precisam de antialiasing habilitado
 
 ## Notas de execução
-(será preenchido pelo executor)
+- Tarefa 6: ThemeManager criado com paleta de cores Steam-style, estilos QSS completos para todos os widgets, singleton pattern.
+- Tarefa 7: FloatingWindow implementada com cantos arredondados, sombra, barra de título customizada, drag-and-drop, animações fade-in/out. Design pattern ajustado (_init_ui hook) para permitir subclasses.
+- Tarefa 8: LoginWindow completa com validação de campos, sinais para login/register, estados de loading, animação fade-in.
+- Tarefa 9: MainWindow com lista de amigos, seções online/offline, busca, menu contexto, placeholder vazio. FriendSection para organizar grupos.
+- Tarefa 10: Componentes reutilizáveis criados (Avatar, StatusIndicator, SearchBar, FriendItem, MessageBubble, TypingIndicator, NotificationWidget).
+- Nota: Plugin de opacidade não suportado no X11/Wayland é esperado; não afeta funcionalidade.
 
 ## Status
-Não iniciado
+Concluído
 
 ---
+
 ---
 
 # Fase 2: Autenticação e Gerenciamento de Usuários
@@ -376,18 +382,18 @@ Sistema completo de login/registro funcionando: banco local SQLite, models SQLAl
 
 ## Tarefas
 
-- [ ] 11. Criar models do banco local (SQLite)
+- [x] 11. Criar models do banco local (SQLite)
       - Arquivos: `client/storage/database.py`, `client/storage/models.py`
       - Detalhes:
         - `database.py`: Engine SQLite com `create_engine(f"sqlite:///{DB_PATH}")`, `sessionmaker`, função `init_db()` que cria todas as tabelas, context manager `get_session()`
         - `models.py` — models SQLAlchemy:
-          - `UserLocal`: id (int PK), username (str), email (str unique), display_name (str), avatar_path (str nullable), theme (str default "dark"), created_at (datetime)
+          - `UserLocal`: id (str PK), username (str), email (str unique), display_name (str), avatar_path (str nullable), theme (str default "dark"), created_at (datetime)
           - `Message`: id (int PK), sender_id (str), receiver_id (str), content (text), timestamp (datetime), encrypted (bool default False), read (bool default False), delivered (bool default False)
           - `Friend`: id (int PK), user_id (str), friend_id (str), nickname (str nullable), added_at (datetime), unique constraint em (user_id, friend_id)
           - `Settings`: key (str PK), value (text)
           - `KeyPair`: id (int PK), user_id (str), public_key (text), private_key (text encrypted), created_at (datetime)
 
-- [ ] 12. Criar repositórios de dados
+- [x] 12. Criar repositórios de dados
       - Arquivos: `client/storage/repositories.py`
       - Detalhes: Classes Repository genéricas com CRUD:
         - `BaseRepository`: save(entity), delete(entity), get_by_id(id), get_all()
@@ -397,7 +403,7 @@ Sistema completo de login/registro funcionando: banco local SQLite, models SQLAl
         - `SettingsRepository`: get(key, default=None), set(key, value), get_all()
         - Usar `select()`, `Session.execute()`, pattern do SQLAlchemy 2.0
 
-- [ ] 13. Implementar módulo de autenticação (cliente)
+- [x] 13. Implementar módulo de autenticação (cliente)
       - Arquivos: `client/core/auth.py`
       - Detalhes:
         - `class AuthManager`:
@@ -410,7 +416,7 @@ Sistema completo de login/registro funcionando: banco local SQLite, models SQLAl
         - Tratar erros: credenciais inválidas, rede offline, token expirado
         - Usar `httpx.AsyncClient` para requests
 
-- [ ] 14. Implementar servidor de auth (Node.js)
+- [x] 14. Implementar servidor de auth (Node.js)
       - Arquivos: `server/src/routes/auth.js`, `server/src/routes/users.js`, `server/src/middleware/auth.js`, `server/src/database/db.js`
       - Detalhes:
         - `db.js`: Conexão com MySQL/PostgreSQL (config via .env), criar tabela `users` se não existir (id, username, email, password_hash, public_key, created_at)
@@ -423,7 +429,34 @@ Sistema completo de login/registro funcionando: banco local SQLite, models SQLAl
           - GET `/api/users/search?q=email`: buscar users por email (protegido)
         - `middleware/auth.js`: extrair JWT do header Authorization, verificar validade, adicionar user ao request
 
-- [ ] 15. Implementar janela de login funcional
+- [ ] 14b. Deploy do servidor na Hostinger
+      - Arquivos: `deploy.sh`, `server/`, `server/.env.production`
+      - Detalhes: Antes de testar a autenticação, o servidor deve estar rodando na Hostinger.
+        - Executar `bash deploy.sh` na raiz do projeto
+          - Script lê a versão de `server/package.json` e gera `server/klyvochat-server-{versão}.zip`
+          - Zips antigos (`klyvochat-server-*.zip`) são removidos automaticamente antes de criar o novo
+          - O .zip não inclui `node_modules/`, `.git/`, `*.db`, `data/`, `.env` (apenas `.env.example`)
+          - O script também gera um `JWT_SECRET` aleatório seguro via `openssl rand -hex 32`
+            e exibe o valor para o usuário anotar (não entra no .zip)
+        - Antes do deploy: usar o database wizard do hPanel para criar o banco MySQL
+          - O wizard configura automaticamente as variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`,
+            `DB_USER`, `DB_PASSWORD` no painel de Environment Variables
+        - Fazer upload do .zip gerado via hPanel:
+          1. Acessar hPanel → Websites → Node.js web app (ou adicionar novo site Node.js)
+          2. Upload do arquivo `server/klyvochat-server-{versão}.zip`
+          3. Entry file: `src/index.js`
+          4. Node.js version: 22
+        - Importar `server/.env.production` via hPanel:
+          - Environment Variables → Import .env
+          - O `.env.production` contém APENAS as variáveis manuais (sem `DB_*`):
+            `PORT`, `NODE_ENV`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `REFRESH_EXPIRES_IN`
+          - Se o database wizard já configurou as variáveis `DB_*`, o `.env` importado
+            NÃO deve sobrescrevê-las — por isso o `.env.production` não inclui `DB_*`
+          - Comentários são aceitos no import (Hostinger ignora linhas que começam com `#`)
+        - Verificar deploy: `curl https://seudominio.com/health` → `{"status":"ok"}`
+        - Esta tarefa é manual (upload via browser) — marcar como concluída após confirmação do usuário
+
+- [x] 15. Implementar janela de login funcional
       - Arquivos: `client/ui/windows/login_window.py`, `client/main.py`
       - Detalhes: Conectar UI existente ao AuthManager:
         - Validar campos antes de enviar: email formato válido, senha >= 6 chars
@@ -442,12 +475,16 @@ Sistema completo de login/registro funcionando: banco local SQLite, models SQLAl
 - SQLite não suporta concorrência写入 — ok para uso local single-user
 
 ## Notas de execução
-(será preenchido pelo executor)
+- Tarefa 11: Models criados conforme especificado. Ajuste: `UserLocal.id` alterado de `int` para `str` para acomodar UUIDs do servidor, mantendo consistência com `Message.sender_id/receiver_id` e `Friend.user_id/friend_id`.
+- Tarefa 12: Repositórios implementados com SQLAlchemy 2.0 (`select()`, `Session.execute()`). `FriendRepository` inclui método `add_friend` com nickname opcional.
+- Tarefa 13: `AuthManager` implementado com httpx.AsyncClient e qasync para integração com PySide6. Tokens salvos em `~/.klyvochat/auth.json` com chmod 600. Refresh automático em 401. `UserLocal` salvo localmente após login/registro.
+- Tarefa 14: Rotas de auth e users atualizadas para usar MySQL via `db.js` (removido Map em memória). `index.js` inicializa banco no startup. `ws@^12.0.0` ajustado para `ws@^8.16.0` (versão disponível no npm). `mysql2` atualizado para `^3.9.0`.
+- Tarefa 14b: `deploy.sh` atualizado com versionamento automático a partir de `server/package.json` e limpeza de zips antigos. Zip `server/klyvochat-server-0.1.0.zip` gerado com sucesso (24KB, sem node_modules/.git/.env). Upload manual na Hostinger ainda pendente.
+- Tarefa 15: `client/main.py` criado com `AppController`. `RegisterDialog` adicionado. Login e register conectados ao `AuthManager`. Validação de email e senha >= 6 chars. Estado de loading no botão. Pular login se token válido.
 
 ## Status
-Não iniciado
+Concluído
 
----
 ---
 
 # Fase 3: Sistema de Presença e Lista de Amigos

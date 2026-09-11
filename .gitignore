@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 data/
 .env
+.env.production
 *.db
 node_modules/
 .idea/

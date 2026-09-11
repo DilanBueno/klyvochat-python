@@ -3,6 +3,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 import { config } from './config.js';
+import { initDatabase } from './database/db.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 
@@ -53,6 +54,18 @@ wss.on('close', () => {
   clearInterval(interval);
 });
 
-server.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
+async function start() {
+  try {
+    await initDatabase(config);
+    console.log('Database initialized');
+  } catch (err) {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  }
+
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+}
+
+start();
