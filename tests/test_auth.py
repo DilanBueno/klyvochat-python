@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import time
+from contextlib import contextmanager
 from typing import Any
 
 import httpx
 import pytest
 from jose import jwt
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from client.core import auth as auth_module
 from client.core.auth import AuthError, AuthManager
+from client.storage.database import Base
+from client.storage.repositories import UserRepository
 
 USER = {
     "id": "user-1",
@@ -47,9 +52,28 @@ class FakeClient:
 
 @pytest.fixture
 def manager(tmp_path):
+    # Isolated temp DB with the real schema: the suite must pass on a fresh
+    # checkout where data/klyvochat.db does not exist (e.g. CI).
+    engine = create_engine(f"sqlite:///{tmp_path / 'test.db'}")
+    Base.metadata.create_all(engine)
+    session_factory = sessionmaker(bind=engine, expire_on_commit=False)
+
+    @contextmanager
+    def _factory():
+        session = session_factory()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
     auth = AuthManager()
     auth._auth_dir = tmp_path
     auth._auth_file = tmp_path / "auth.json"
+    auth._user_repo = UserRepository(session_factory=_factory)
     auth._save_user_locally = lambda data: None
     return auth
 
