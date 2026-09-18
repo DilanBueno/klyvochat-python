@@ -1,17 +1,13 @@
-from PySide6.QtCore import Signal, Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
-    QSpacerItem,
-    QSizePolicy,
     QLabel,
     QLineEdit,
     QPushButton,
-    QWidget,
+    QSizePolicy,
+    QSpacerItem,
 )
 
 from ..window_manager import FloatingWindow
-from ..theme import theme
 
 
 class LoginWindow(FloatingWindow):
@@ -33,8 +29,7 @@ class LoginWindow(FloatingWindow):
         title_label = QLabel("Klyvochat")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet(
-            """
+        title_label.setStyleSheet("""
             QLabel#title {
                 color: #66c0f4;
                 font-size: 28px;
@@ -43,29 +38,25 @@ class LoginWindow(FloatingWindow):
                 background: transparent;
                 margin-bottom: 8px;
             }
-        """
-        )
+        """)
         content_layout.addWidget(title_label)
 
         subtitle_label = QLabel("Conecte-se com seus amigos")
         subtitle_label.setAlignment(Qt.AlignCenter)
-        subtitle_label.setStyleSheet(
-            """
+        subtitle_label.setStyleSheet("""
             QLabel {
                 color: #8b98a5;
                 font-size: 13px;
                 background: transparent;
                 margin-bottom: 32px;
             }
-        """
-        )
+        """)
         content_layout.addWidget(subtitle_label)
 
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Email ou usuário")
         self.username_input.setMinimumHeight(44)
-        self.username_input.setStyleSheet(
-            """
+        self.username_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2a3f52;
                 color: #c7d5e0;
@@ -81,16 +72,14 @@ class LoginWindow(FloatingWindow):
             QLineEdit::placeholder {
                 color: #8b98a5;
             }
-        """
-        )
+        """)
         content_layout.addWidget(self.username_input)
 
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Senha")
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setMinimumHeight(44)
-        self.password_input.setStyleSheet(
-            """
+        self.password_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2a3f52;
                 color: #c7d5e0;
@@ -106,31 +95,27 @@ class LoginWindow(FloatingWindow):
             QLineEdit::placeholder {
                 color: #8b98a5;
             }
-        """
-        )
+        """)
         self.password_input.returnPressed.connect(self._on_login_clicked)
         content_layout.addWidget(self.password_input)
 
         self.error_label = QLabel("")
         self.error_label.setAlignment(Qt.AlignCenter)
-        self.error_label.setStyleSheet(
-            """
+        self.error_label.setStyleSheet("""
             QLabel {
                 color: #f44336;
                 font-size: 12px;
                 background: transparent;
                 min-height: 20px;
             }
-        """
-        )
+        """)
         self.error_label.hide()
         content_layout.addWidget(self.error_label)
 
         self.login_btn = QPushButton("Conectar")
         self.login_btn.setMinimumHeight(44)
         self.login_btn.setCursor(Qt.PointingHandCursor)
-        self.login_btn.setStyleSheet(
-            """
+        self.login_btn.setStyleSheet("""
             QPushButton {
                 background-color: #66c0f4;
                 color: #ffffff;
@@ -150,8 +135,7 @@ class LoginWindow(FloatingWindow):
                 background-color: #5a6570;
                 color: #3a4a5a;
             }
-        """
-        )
+        """)
         self.login_btn.clicked.connect(self._on_login_clicked)
         content_layout.addWidget(self.login_btn)
 
@@ -161,8 +145,7 @@ class LoginWindow(FloatingWindow):
         self.register_btn = QPushButton("Criar conta")
         self.register_btn.setMinimumHeight(44)
         self.register_btn.setCursor(Qt.PointingHandCursor)
-        self.register_btn.setStyleSheet(
-            """
+        self.register_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
                 color: #66c0f4;
@@ -178,8 +161,7 @@ class LoginWindow(FloatingWindow):
             QPushButton:pressed {
                 background-color: rgba(102, 192, 244, 0.2);
             }
-        """
-        )
+        """)
         self.register_btn.clicked.connect(self._on_register_clicked)
         content_layout.addWidget(self.register_btn)
 

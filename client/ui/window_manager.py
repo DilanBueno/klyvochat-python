@@ -1,14 +1,13 @@
-import sys
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QPoint, QSize
-from PySide6.QtGui import QPainter, QPainterPath, QColor, QPen, QBrush
+from PySide6.QtCore import QEasingCurve, QPoint, QPropertyAnimation, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QApplication,
+    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QGraphicsDropShadowEffect,
-    QApplication,
+    QVBoxLayout,
+    QWidget,
 )
 
 
@@ -22,6 +21,7 @@ class FloatingWindow(QWidget):
         super().__init__(parent)
         self._drag_position = QPoint()
         self._is_closing = False
+        self._target_opacity = 1.0
 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -62,31 +62,27 @@ class FloatingWindow(QWidget):
         title_bar = QWidget()
         title_bar.setObjectName("titleBar")
         title_bar.setFixedHeight(40)
-        title_bar.setStyleSheet(
-            """
+        title_bar.setStyleSheet("""
             #titleBar {
                 background-color: #162230;
                 border-top-left-radius: 12px;
                 border-top-right-radius: 12px;
             }
-        """
-        )
+        """)
 
         layout = QHBoxLayout(title_bar)
         layout.setContentsMargins(12, 0, 8, 0)
         layout.setSpacing(8)
 
         self.title_label = QLabel("Klyvochat")
-        self.title_label.setStyleSheet(
-            """
+        self.title_label.setStyleSheet("""
             QLabel {
                 color: #c7d5e0;
                 font-size: 13px;
                 font-weight: bold;
                 background: transparent;
             }
-        """
-        )
+        """)
         layout.addWidget(self.title_label)
 
         layout.addStretch()
@@ -94,8 +90,7 @@ class FloatingWindow(QWidget):
         self.minimize_btn = QPushButton()
         self.minimize_btn.setFixedSize(28, 28)
         self.minimize_btn.setObjectName("minimizeBtn")
-        self.minimize_btn.setStyleSheet(
-            """
+        self.minimize_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
                 border: none;
@@ -105,16 +100,14 @@ class FloatingWindow(QWidget):
             QPushButton:hover {
                 background-color: #2a475e;
             }
-        """
-        )
+        """)
         self.minimize_btn.clicked.connect(self.showMinimized)
         layout.addWidget(self.minimize_btn)
 
         self.close_btn = QPushButton()
         self.close_btn.setFixedSize(28, 28)
         self.close_btn.setObjectName("closeBtn")
-        self.close_btn.setStyleSheet(
-            """
+        self.close_btn.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
                 border: none;
@@ -123,8 +116,7 @@ class FloatingWindow(QWidget):
             QPushButton:hover {
                 background-color: #f44336;
             }
-        """
-        )
+        """)
         self.close_btn.clicked.connect(self._animate_close)
         layout.addWidget(self.close_btn)
 
@@ -165,8 +157,13 @@ class FloatingWindow(QWidget):
         self.opacity_animation.stop()
         self.setWindowOpacity(0)
         self.opacity_animation.setStartValue(0)
-        self.opacity_animation.setEndValue(1)
+        self.opacity_animation.setEndValue(self._target_opacity)
         self.opacity_animation.start()
+
+    def set_window_opacity(self, opacity: float):
+        self._target_opacity = max(0.0, min(1.0, float(opacity)))
+        if self.isVisible():
+            self.setWindowOpacity(self._target_opacity)
 
     def _animate_close(self):
         self._is_closing = True

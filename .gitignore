@@ -14,3 +14,5 @@ dist/
 build/
 *.log
 server/node_modules/
+# versioned server deploy zips built by deploy.sh
+server/klyvochat-server-*.zip

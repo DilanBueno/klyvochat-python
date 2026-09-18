@@ -1,15 +1,15 @@
-from .theme import theme, ThemeManager
-from .window_manager import FloatingWindow
 from .components import (
     Avatar,
-    StatusIndicator,
-    SearchBar,
     FriendItem,
     MessageBubble,
-    TypingIndicator,
-    NotificationWidget,
     NotificationManager,
+    NotificationWidget,
+    SearchBar,
+    StatusIndicator,
+    TypingIndicator,
 )
+from .theme import ThemeManager, theme
+from .window_manager import FloatingWindow
 from .windows import LoginWindow, MainWindow
 
 __all__ = [

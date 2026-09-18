@@ -1,18 +1,17 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QLabel, QWidget
-from PySide6.QtGui import QPainter, QPainterPath, QColor, QPen
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout
 
 from .avatar import Avatar
 from .status_indicator import StatusIndicator
 
 
 class FriendItem(QFrame):
-    clicked = Signal(int)
-    double_clicked = Signal(int)
+    clicked = Signal(str)
+    double_clicked = Signal(str)
 
     def __init__(
         self,
-        friend_id: int,
+        friend_id: str,
         name: str,
         status: str = "offline",
         description: str = "",
@@ -20,7 +19,7 @@ class FriendItem(QFrame):
         parent=None,
     ):
         super().__init__(parent)
-        self._friend_id = friend_id
+        self._friend_id = str(friend_id)
         self._name = name
         self._status = status
         self._description = description
@@ -28,12 +27,12 @@ class FriendItem(QFrame):
 
         self.setFixedHeight(60)
         self.setCursor(Qt.PointingHandCursor)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         self._setup_ui(avatar_initials)
         self._setup_events()
 
     def _setup_ui(self, avatar_initials):
-        self.setStyleSheet(
-            """
+        self.setStyleSheet("""
             QFrame {
                 background-color: transparent;
                 border-radius: 4px;
@@ -41,8 +40,7 @@ class FriendItem(QFrame):
             QFrame:hover {
                 background-color: #2a475e;
             }
-        """
-        )
+        """)
 
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(12, 8, 12, 8)
@@ -59,34 +57,48 @@ class FriendItem(QFrame):
         name_layout.setSpacing(4)
 
         self.name_label = QLabel(self._name)
-        self.name_label.setStyleSheet(
-            """
+        self.name_label.setStyleSheet("""
             QLabel {
                 color: #c7d5e0;
                 font-size: 13px;
                 font-weight: bold;
                 background: transparent;
             }
-        """
-        )
+        """)
         name_layout.addWidget(self.name_label)
 
         self.status_indicator = StatusIndicator(status=self._status, size=8)
         name_layout.addWidget(self.status_indicator)
+
+        self.unread_badge = QLabel("")
+        self.unread_badge.setFixedHeight(18)
+        self.unread_badge.setStyleSheet("""
+            QLabel {
+                background-color: #f44336;
+                color: #ffffff;
+                border-radius: 9px;
+                padding: 0 6px;
+                font-size: 10px;
+                font-weight: bold;
+                min-width: 10px;
+                max-width: 40px;
+            }
+        """)
+        self.unread_badge.hide()
+        name_layout.addWidget(self.unread_badge)
+
         name_layout.addStretch()
 
         info_layout.addLayout(name_layout)
 
         self.status_label = QLabel(self._description or self._status.capitalize())
-        self.status_label.setStyleSheet(
-            """
+        self.status_label.setStyleSheet("""
             QLabel {
                 color: #8b98a5;
                 font-size: 11px;
                 background: transparent;
             }
-        """
-        )
+        """)
         info_layout.addWidget(self.status_label)
 
         main_layout.addLayout(info_layout, 1)
@@ -128,5 +140,20 @@ class FriendItem(QFrame):
         self._description = description
         self.status_label.setText(description or self._status.capitalize())
 
-    def get_friend_id(self) -> int:
+    def set_unread(self, count: int):
+        if count <= 0:
+            self.unread_badge.hide()
+            return
+        self.unread_badge.setText(str(count))
+        self.unread_badge.show()
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def friend_id(self) -> str:
+        return self._friend_id
+
+    def get_friend_id(self) -> str:
         return self._friend_id

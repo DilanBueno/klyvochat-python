@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "Klyvochat Team"}
+    {name = "Dilan Bueno"}
 ]
 keywords = ["p2p", "webrtc", "chat", "voice", "python"]
 classifiers = [
@@ -56,6 +56,11 @@ line-length = 100
 target-version = "py311"
 select = ["E", "F", "W", "I", "N", "UP"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Qt requires camelCase for virtual-method overrides (paintEvent, closeEvent, ...)
+"client/**/*.py" = ["N802"]
+"tests/**/*.py" = ["N802"]
 
 [tool.black]
 line-length = 100

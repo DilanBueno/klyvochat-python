@@ -1,4 +1,4 @@
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import QApplication
 
 
@@ -23,6 +23,34 @@ class ThemeManager:
         "input_focus": "#3a5068",
     }
 
+    LIGHT_COLORS = {
+        "bg_primary": "#eef1f5",
+        "bg_secondary": "#dfe5ec",
+        "bg_tertiary": "#c9d3de",
+        "accent": "#2f80ed",
+        "accent_hover": "#5a9ef2",
+        "accent_pressed": "#1f6fd0",
+        "text_primary": "#1b2838",
+        "text_secondary": "#5a6b7d",
+        "text_disabled": "#9aa7b4",
+        "success": "#2e9e4f",
+        "error": "#d64541",
+        "warning": "#e6a817",
+        "border": "#c2ccd6",
+        "input_bg": "#ffffff",
+        "input_focus": "#eef4fb",
+    }
+
+    ACCENTS = [
+        "#66c0f4",
+        "#4caf50",
+        "#f44336",
+        "#ffc107",
+        "#9c27b0",
+        "#ff7043",
+        "#00bcd4",
+    ]
+
     FONTS = {
         "family": "Segoe UI, Noto Sans, Sans-Serif",
     }
@@ -45,9 +73,37 @@ class ThemeManager:
         if not hasattr(self, "_initialized"):
             self._initialized = True
             self._current_theme = "dark"
+            self._accent_override: str | None = None
+
+    @property
+    def current_theme(self) -> str:
+        return self._current_theme
+
+    def set_theme(self, name: str) -> None:
+        if name not in {"dark", "light"}:
+            raise ValueError(f"Unknown theme: {name}")
+        self._current_theme = name
+        self._accent_override = None
+
+    def set_accent(self, color: str) -> None:
+        self._accent_override = color
+
+    def _palette(self) -> dict[str, str]:
+        return self.LIGHT_COLORS if self._current_theme == "light" else self.COLORS
 
     def get_color(self, name: str) -> str:
-        return self.COLORS.get(name, "#000000")
+        palette = self._palette()
+        if name == "accent" and self._accent_override:
+            return self._accent_override
+        if name in {"accent_hover", "accent_pressed"} and self._accent_override:
+            return self._accent_override
+        return palette.get(name, "#000000")
+
+    def apply(self, app=None) -> None:
+
+        target = app or QApplication.instance()
+        if target is not None:
+            target.setStyleSheet(self.get_stylesheet())
 
     def get_font(self, size: str = "body") -> QFont:
         font = QFont()

@@ -1,6 +1,11 @@
 import express from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { getPool } from '../database/db.js';
+import {
+  getFriends,
+  getPendingFriendRequests,
+  getUserById,
+} from '../websocket/friend-service.js';
 
 const router = express.Router();
 
@@ -19,6 +24,39 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.json(rows[0]);
   } catch (err) {
     console.error('Get me error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/friends', authMiddleware, async (req, res) => {
+  try {
+    const friends = await getFriends(req.user.userId);
+    res.json({ friends });
+  } catch (err) {
+    console.error('Get friends error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/friend-requests', authMiddleware, async (req, res) => {
+  try {
+    const requests = await getPendingFriendRequests(req.user.userId);
+    res.json({ requests });
+  } catch (err) {
+    console.error('Get friend requests error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/profile/:userId', authMiddleware, async (req, res) => {
+  try {
+    const user = await getUserById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Get profile error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

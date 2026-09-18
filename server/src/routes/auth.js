@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import { config } from '../config.js';
 import { getPool } from '../database/db.js';
 
@@ -25,7 +26,7 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const userId = crypto.randomUUID();
+    const userId = randomUUID();
 
     await pool.execute(
       'INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)',

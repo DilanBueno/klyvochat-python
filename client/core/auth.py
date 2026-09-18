@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 import os
 import stat
+from datetime import UTC
 from pathlib import Path
-from typing import Optional
+
 import httpx
 from jose import jwt
 
+from client.storage.repositories import UserLocal, UserRepository
 from config import settings
-from client.storage.repositories import UserRepository, UserLocal
 
 
 class AuthError(Exception):
@@ -21,9 +22,9 @@ class AuthManager:
         self._auth_dir = Path.home() / ".klyvochat"
         self._auth_file = self._auth_dir / "auth.json"
         self._user_repo = UserRepository()
-        self._token: Optional[str] = None
-        self._refresh_token: Optional[str] = None
-        self._current_user: Optional[UserLocal] = None
+        self._token: str | None = None
+        self._refresh_token: str | None = None
+        self._current_user: UserLocal | None = None
         self._load_tokens()
 
     def _load_tokens(self) -> None:
@@ -139,10 +140,10 @@ class AuthManager:
         self._clear_tokens()
         self._user_repo.clear_current()
 
-    def get_token(self) -> Optional[str]:
+    def get_token(self) -> str | None:
         return self._token
 
-    def get_refresh_token(self) -> Optional[str]:
+    def get_refresh_token(self) -> str | None:
         return self._refresh_token
 
     def is_authenticated(self) -> bool:
@@ -151,15 +152,16 @@ class AuthManager:
         try:
             payload = jwt.get_unverified_claims(self._token)
             if payload.get("exp"):
-                from datetime import datetime, timezone
-                exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
-                if datetime.now(timezone.utc) >= exp:
+                from datetime import datetime
+
+                exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+                if datetime.now(UTC) >= exp:
                     return False
             return True
         except Exception:
             return False
 
-    def get_current_user(self) -> Optional[UserLocal]:
+    def get_current_user(self) -> UserLocal | None:
         if self._current_user:
             return self._current_user
         self._current_user = self._user_repo.get_current()

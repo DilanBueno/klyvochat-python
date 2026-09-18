@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -8,7 +7,7 @@ class Settings(BaseSettings):
     DB_PATH: str = "data/klyvochat.db"
     THEME: str = "dark"
     LOG_LEVEL: str = "INFO"
-    STUN_SERVERS: List[str] = [
+    STUN_SERVERS: list[str] = [
         "stun:stun.l.google.com:19302",
         "stun:stun1.l.google.com:19302",
     ]

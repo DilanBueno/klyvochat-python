@@ -1,5 +1,4 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit, QHBoxLayout, QWidget, QLabel
+from PySide6.QtWidgets import QLineEdit
 
 
 class SearchBar(QLineEdit):
@@ -8,8 +7,7 @@ class SearchBar(QLineEdit):
         self.setPlaceholderText(placeholder)
         self.setMinimumHeight(36)
         self.setTextMargins(8, 0, 8, 0)
-        self.setStyleSheet(
-            """
+        self.setStyleSheet("""
             QLineEdit {
                 background-color: #2a3f52;
                 color: #c7d5e0;
@@ -25,5 +23,4 @@ class SearchBar(QLineEdit):
             QLineEdit::placeholder {
                 color: #8b98a5;
             }
-        """
-        )
+        """)
